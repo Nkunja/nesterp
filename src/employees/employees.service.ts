@@ -13,11 +13,41 @@ export class EmployeesService {
   }
 
   findAll() {
-    return this.prisma.employee.findMany();
+    return this.prisma.employee.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        departmentId: true,
+        // Do not include password here
+      },
+    });
   }
 
   findOne(id: number) {
-    return this.prisma.employee.findUnique({ where: { id } });
+    return this.prisma.employee.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        departmentId: true,
+        // Do not include password here
+      },
+    });
+  }
+
+  async findByEmail(email: string) {
+    return this.prisma.employee.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        password: true, // Include password for authentication
+        departmentId: true,
+      },
+    });
   }
 
   update(id: number, data: UpdateEmployeeDto) {

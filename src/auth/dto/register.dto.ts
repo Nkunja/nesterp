@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateEmployeeDto {
+export class RegisterDto {
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -12,7 +12,5 @@ export class CreateEmployeeDto {
 
   @IsString()
   @IsNotEmpty()
-  password: string; // Add this line
-
-  departmentId?: number; // Optional
+  password: string;
 }

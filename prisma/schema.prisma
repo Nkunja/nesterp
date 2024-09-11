@@ -16,6 +16,7 @@ model Employee {
   id          Int       @id @default(autoincrement())
   name        String
   email       String    @unique
+  password    String
   department  Department? @relation(fields: [departmentId], references: [id])
   departmentId Int?
   tasks       Task[]
@@ -45,3 +46,5 @@ model Task {
   assignedTo  Employee? @relation(fields: [employeeId], references: [id])
   employeeId  Int?
 }
+
+
