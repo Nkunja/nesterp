@@ -8,18 +8,43 @@ import { UpdateEmployeeDto } from './dto/update-employee.dto';
 export class EmployeesService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: CreateEmployeeDto) {
-    return this.prisma.employee.create({ data });
+  // create(data: CreateEmployeeDto) {
+  //   return this.prisma.employee.create({ data });
+  // }
+  async create(data: CreateEmployeeDto) {
+    // Fetch the role ID for "employee"
+    const role = await this.prisma.role.findUnique({
+      where: { name: 'employee' },
+    });
+  
+    return this.prisma.employee.create({
+      data: {
+        ...data,
+        roleId: role.id, // Set the default role ID
+      },
+    });
   }
 
-  findAll() {
+  // findAll() {
+  //   return this.prisma.employee.findMany({
+  //     select: {
+  //       id: true,
+  //       name: true,
+  //       email: true,
+  //       departmentId: true,
+  //       // Do not include password here
+  //     },
+  //   });
+  // }
+
+  findAll(companyId: number) {
     return this.prisma.employee.findMany({
+      where: { companyId },
       select: {
         id: true,
         name: true,
         email: true,
         departmentId: true,
-        // Do not include password here
       },
     });
   }
@@ -37,6 +62,19 @@ export class EmployeesService {
     });
   }
 
+  // async findByEmail(email: string) {
+  //   return this.prisma.employee.findUnique({
+  //     where: { email },
+  //     select: {
+  //       id: true,
+  //       name: true,
+  //       email: true,
+  //       password: true, // Include password for authentication
+  //       departmentId: true,
+  //     },
+  //   });
+  // }
+
   async findByEmail(email: string) {
     return this.prisma.employee.findUnique({
       where: { email },
@@ -44,8 +82,9 @@ export class EmployeesService {
         id: true,
         name: true,
         email: true,
-        password: true, // Include password for authentication
+        password: true,
         departmentId: true,
+        companyId: true, // Add this line
       },
     });
   }

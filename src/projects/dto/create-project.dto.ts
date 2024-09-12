@@ -6,5 +6,9 @@ export class CreateProjectDto {
   @IsNotEmpty()
   name: string;
 
-  departmentId: number; // Optional
+  @IsNotEmpty()
+  departmentId: number; 
+
+  @IsNotEmpty()
+  companyId: number;
 }

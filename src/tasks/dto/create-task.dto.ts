@@ -13,4 +13,7 @@ export class CreateTaskDto {
   @IsNumber()
   employeeId?: number; // Optional
   status?: string;
+
+  @IsNotEmpty() 
+  companyId: number
 }

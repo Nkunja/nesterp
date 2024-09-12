@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateEmployeeDto {
   @IsString()
@@ -12,7 +12,13 @@ export class CreateEmployeeDto {
 
   @IsString()
   @IsNotEmpty()
-  password: string; // Add this line
+  password: string;
 
-  departmentId?: number; // Optional
+  @IsNumber()
+  @IsNotEmpty()
+  departmentId: number; 
+
+  @IsNumber()
+  @IsNotEmpty()
+  companyId: number; 
 }

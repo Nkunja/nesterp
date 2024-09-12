@@ -12,6 +12,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Company {
+  id        Int       @id @default(autoincrement())
+  name      String
+  employees Employee[]
+  projects  Project[]
+  tasks     Task[]
+  departments Department[]
+}
+
 model Employee {
   id          Int       @id @default(autoincrement())
   name        String
@@ -19,14 +28,20 @@ model Employee {
   password    String
   department  Department? @relation(fields: [departmentId], references: [id])
   departmentId Int?
+  company     Company   @relation(fields: [companyId], references: [id])
+  companyId   Int
   tasks       Task[]
+  role        Role?    @relation(fields: [roleId], references: [id])
+  roleId      Int?
 }
 
 model Department {
-  id        Int        @id @default(autoincrement())
-  name      String
-  employees Employee[]
-  projects  Project[]
+  id          Int        @id @default(autoincrement())
+  name        String
+  employees   Employee[]
+  projects    Project[]
+  company     Company    @relation(fields: [companyId], references: [id])
+  companyId   Int
 }
 
 model Project {
@@ -35,6 +50,8 @@ model Project {
   department  Department @relation(fields: [departmentId], references: [id])
   departmentId Int
   tasks       Task[]
+  company     Company    @relation(fields: [companyId], references: [id])
+  companyId   Int
 }
 
 model Task {
@@ -45,6 +62,12 @@ model Task {
   projectId   Int
   assignedTo  Employee? @relation(fields: [employeeId], references: [id])
   employeeId  Int?
+  company     Company    @relation(fields: [companyId], references: [id])
+  companyId   Int
 }
 
-
+model Role {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  employees Employee[]
+}

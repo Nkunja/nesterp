@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -13,9 +13,15 @@ export class EmployeesController {
     return this.employeesService.create(createEmployeeDto);
   }
 
+  // @Get()
+  // findAll() {
+  //   return this.employeesService.findAll();
+  // }
+
   @Get()
-  findAll() {
-    return this.employeesService.findAll();
+  findAll(@Request() req) {
+    const companyId = req['companyId']; // Extract companyId from request
+    return this.employeesService.findAll(companyId);
   }
 
   @Get(':id')

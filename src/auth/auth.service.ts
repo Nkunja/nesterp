@@ -13,11 +13,23 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  // async register(registerDto: RegisterDto) {
+  //   const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+  //   return this.employeesService.create({
+  //     ...registerDto,
+  //     password: hashedPassword,
+  //   });
+  // }
+
   async register(registerDto: RegisterDto) {
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    
+    // Ensure you have departmentId and companyId in the registerDto
     return this.employeesService.create({
       ...registerDto,
       password: hashedPassword,
+      departmentId: registerDto.departmentId, 
+      companyId: registerDto.companyId,       
     });
   }
 
@@ -26,7 +38,7 @@ export class AuthService {
     if (!employee || !(await bcrypt.compare(loginDto.password, employee.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const payload = { email: employee.email, sub: employee.id };
+    const payload = { email: employee.email, sub: employee.id, companyId: employee.companyId };
     return {
       access_token: this.jwtService.sign(payload),
     };

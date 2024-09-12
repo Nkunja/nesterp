@@ -1,11 +1,8 @@
 /* eslint-disable prettier/prettier */
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateDepartmentDto {
+export class CreateCompanyDto {
   @IsString()
   @IsNotEmpty()
   name: string;
-
-  @IsNotEmpty()
-  companyId: number; 
 }

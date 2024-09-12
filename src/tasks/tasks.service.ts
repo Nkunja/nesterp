@@ -15,6 +15,7 @@ export class TasksService {
       project: { connect: { id: data.projectId } }, 
       assignedTo: data.employeeId ? { connect: { id: data.employeeId } } : undefined,
       status: data.status || 'pending',
+      company: { connect: { id: data.companyId } },
     };
 
     return this.prisma.task.create({
