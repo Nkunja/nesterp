@@ -11,6 +11,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { ProjectsModule } from './projects/projects.module';
 import { TasksModule } from './tasks/tasks.module';
 import { CompanyModule } from './company/company.module';
+import { MpesaService } from './mpesa/mpesa.service';
+import { MpesaModule } from './mpesa/mpesa.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -25,9 +28,11 @@ import { CompanyModule } from './company/company.module';
     ProjectsModule,
     TasksModule,
     CompanyModule,
+    HttpModule,
+    MpesaModule
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [AppService, PrismaService, MpesaService],
 })
 export class AppModule {}
 
