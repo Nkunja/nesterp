@@ -65,7 +65,7 @@ export class MpesaService {
   }
 
   async checkPaymentStatus(transactionId: string): Promise<string> {
-    const url = `${process.env.MPESA_PAYMENT_STATUS_URL}/mpesa/payment/${transactionId}`; // Replace with the correct endpoint
+    const url = `${process.env.MPESA_CALLBACK_URL}/mpesa/payment/${transactionId}`; // Replace with the correct endpoint
     const token = await this.mpesaAuthService.getAccessToken(); // Get the access token
 
     const headers = {
