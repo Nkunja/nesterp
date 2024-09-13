@@ -63,4 +63,22 @@ export class MpesaService {
     const password = `${shortcode}${passkey}${timestamp}`;
     return Buffer.from(password).toString('base64'); // Base64 encode
   }
+
+  async checkPaymentStatus(transactionId: string): Promise<string> {
+    const url = `${process.env.MPESA_PAYMENT_STATUS_URL}/mpesa/payment/${transactionId}`; // Replace with the correct endpoint
+    const token = await this.mpesaAuthService.getAccessToken(); // Get the access token
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      const response = await firstValueFrom(this.httpService.get(url, { headers }));
+      return response.data.status; // Adjust based on the actual response structure
+    } catch (error) {
+      console.error('Error checking payment status:', error);
+      throw error; // Handle the error as needed
+    }
+  }
 }

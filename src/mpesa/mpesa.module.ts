@@ -9,6 +9,6 @@ import { MpesaAuthService } from './mpesa-auth.service';
   imports: [HttpModule],
   controllers: [MpesaController],
   providers: [MpesaService, MpesaAuthService],
-  exports: [MpesaAuthService]
+  exports: [MpesaAuthService, MpesaService]
 })
 export class MpesaModule {}
