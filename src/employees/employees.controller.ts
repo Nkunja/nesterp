@@ -13,10 +13,6 @@ export class EmployeesController {
     return this.employeesService.create(createEmployeeDto);
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.employeesService.findAll();
-  // }
 
   @Get()
   findAll(@Request() req) {
