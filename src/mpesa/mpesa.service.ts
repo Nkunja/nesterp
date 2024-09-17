@@ -150,7 +150,8 @@ export class MpesaService {
       };
 
       // Use the actual M-Pesa API endpoint here
-      const mpesaApiUrl = `https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query`;
+      const mpesaApiUrl = `https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query`;
+  
 
       const payload = {
         BusinessShortCode: process.env.MPESA_SHORTCODE,
