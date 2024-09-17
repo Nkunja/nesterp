@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { MpesaAuthService } from './mpesa-auth.service';
@@ -7,6 +7,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class MpesaService {
+  private readonly logger = new Logger(MpesaService.name);
+
+
   constructor(
     private httpService: HttpService, 
     private mpesaAuthService: MpesaAuthService,
@@ -76,44 +79,6 @@ export class MpesaService {
     }
   }
 
-  // async initiatePayment(data: any): Promise<any> {
-  //   const url = process.env.MPESA_PAYMENT_URL;
-  //   const token = await this.mpesaAuthService.getAccessToken(); // Get the access token
-
-
-  //   const shortcode = process.env.BUSINESS_SHORTCODE;
-  //   const passkey = process.env.MPESA_PASSKEY; 
-  //   const timestamp = this.getTimestamp();
-  //   const password = this.generatePassword(shortcode, passkey, timestamp);
-
-  //   const headers = {
-  //     Authorization: `Bearer ${token}`,
-  //     'Content-Type': 'application/json',
-  //   };
-
-  //   const paymentRequest = {
-  //     BusinessShortCode: shortcode,
-  //     Password: password,
-  //     Timestamp: timestamp,
-  //     TransactionType: 'CustomerPayBillOnline',
-  //     Amount: data.amount,
-  //     PartyA: data.phoneNumber,
-  //     PartyB: shortcode,
-  //     PhoneNumber: data.phoneNumber,
-  //     CallBackURL: process.env.MPESA_CALLBACK_URL,
-  //     AccountReference: data.accountReference || 'Sir Nkunja',
-  //     TransactionDesc: data.transactionDesc || 'Payment',
-  //   };
-
-  //   try {
-  //     const response = await firstValueFrom(this.httpService.post(url, paymentRequest, { headers }));
-  //     return response.data;
-  //   } catch (error) {
-  //     const axiosError = error as any;
-  //     console.error('Error initiating payment:', axiosError.response?.data || axiosError.message);
-  //     throw error; // Rethrow or handle the error as needed
-  //   }
-  // }
 
   private getTimestamp(): string {
     const date = new Date();
@@ -132,21 +97,48 @@ export class MpesaService {
     return Buffer.from(password).toString('base64'); // Base64 encode
   }
 
-  async checkPaymentStatus(transactionId: string): Promise<string> {
-    const url = `${process.env.MPESA_CALLBACK_URL}/mpesa/payment/${transactionId}`; // Replace with the correct endpoint
-    const token = await this.mpesaAuthService.getAccessToken(); // Get the access token
+  // async checkPaymentStatus(transactionId: string): Promise<string> {
+  //   const url = `${process.env.MPESA_CALLBACK_URL}/mpesa/payment/${transactionId}`; // Replace with the correct endpoint
+  //   const token = await this.mpesaAuthService.getAccessToken(); // Get the access token
 
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
+  //   const headers = {
+  //     Authorization: `Bearer ${token}`,
+  //     'Content-Type': 'application/json',
+  //   };
+
+  //   try {
+  //     const response = await firstValueFrom(this.httpService.get(url, { headers }));
+  //     return response.data.status; // Adjust based on the actual response structure
+  //   } catch (error) {
+  //     console.error('Error checking payment status:', error);
+  //     throw error; // Handle the error as needed
+  //   }
+  // }
+
+  async checkPaymentStatus(transactionId: string): Promise<string> {
+    // Ensure the MPESA_CALLBACK_URL doesn't end with a slash
+    const baseUrl = process.env.MPESA_CALLBACK_URL?.replace(/\/$/, '');
+    const url = `${baseUrl}/mpesa/payment/${transactionId}`;
+
+    this.logger.log(`Checking payment status for transaction: ${transactionId}`);
+    this.logger.log(`URL: ${url}`);
 
     try {
+      const token = await this.mpesaAuthService.getAccessToken();
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      };
+
       const response = await firstValueFrom(this.httpService.get(url, { headers }));
-      return response.data.status; // Adjust based on the actual response structure
+
+      this.logger.log(`Payment status response: ${JSON.stringify(response.data)}`);
+
+      // Assuming the response contains a 'status' field
+      return response.data.status || 'unknown';
     } catch (error) {
-      console.error('Error checking payment status:', error);
-      throw error; // Handle the error as needed
+      return 'failed';  // Return a default status in case of error
     }
   }
 }
