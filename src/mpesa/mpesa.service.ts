@@ -124,21 +124,71 @@ export class MpesaService {
     this.logger.log(`URL: ${url}`);
 
     try {
-      const token = await this.mpesaAuthService.getAccessToken();
+        const token = await this.mpesaAuthService.getAccessToken();
 
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      };
+        const headers = {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        };
 
-      const response = await firstValueFrom(this.httpService.get(url, { headers }));
+        const response = await firstValueFrom(this.httpService.get(url, { headers }));
 
-      this.logger.log(`Payment status response: ${JSON.stringify(response.data)}`);
+        this.logger.log(`Payment status response: ${JSON.stringify(response.data)}`);
 
-      // Assuming the response contains a 'status' field
-      return response.data.status || 'unknown';
+        const resultCode = response.data?.Body?.stkCallback?.ResultCode;
+
+        // Check ResultCode: 0 indicates success, otherwise it's a failure
+        if (resultCode === 0) {
+            return 'success';
+        } else {
+            return 'fail';
+        }
+
+        // Assuming the response contains a 'status' field
+        // const status =  response.data.status || 'unknown';
+
+        // if (status === 'Completed' || status === 'Success') {
+        //   return 'success';
+        // } else {
+        //     return 'fail';
+        // }
     } catch (error) {
-      return 'failed';  // Return a default status in case of error
+        // Check if error is an instance of Error
+        if (error instanceof Error) {
+            this.logger.error(`Error checking payment status: ${error.message}`, error.stack);
+        } else {
+            this.logger.error('An unknown error occurred while checking payment status.');
+        }
+        return 'failed';
     }
-  }
+}
+
+
+  // async checkPaymentStatus(transactionId: string): Promise<string> {
+  //   // Ensure the MPESA_CALLBACK_URL doesn't end with a slash
+  //   const baseUrl = process.env.MPESA_CALLBACK_URL?.replace(/\/$/, '');
+  //   const url = `${baseUrl}/mpesa/payment/${transactionId}`;
+
+  //   this.logger.log(`Checking payment status for transaction: ${transactionId}`);
+  //   this.logger.log(`URL: ${url}`);
+
+  //   try {
+  //     const token = await this.mpesaAuthService.getAccessToken();
+
+  //     const headers = {
+  //       Authorization: `Bearer ${token}`,
+  //       'Content-Type': 'application/json',
+  //     };
+
+  //     const response = await firstValueFrom(this.httpService.get(url, { headers }));
+
+  //     this.logger.log(`Payment status response: ${JSON.stringify(response.data)}`);
+
+  //     // Assuming the response contains a 'status' field
+  //     return response.data.status || 'unknown';
+  //   } catch (error) {
+  //     this.logger.error(`Error checking payment status: ${error.message}`, error.stack);
+  //     return 'failed';
+  //  }
+  // }
 }

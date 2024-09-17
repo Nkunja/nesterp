@@ -99,6 +99,12 @@ export class CompanyService {
     return await this.mpesaService.checkPaymentStatus(transactionId);
   }
 
+  // private async checkPaymentStatus(transactionId: string): Promise<'success' | 'failed'> {
+  //   // Implement your logic to check payment status
+  //   // This is a placeholder implementation
+  //   return 'success';
+  // }
+
   async confirmPayment(companyId: number): Promise<void> {
     // Update subscription status to active and set subscription end date
     const subscriptionEnd = new Date();
