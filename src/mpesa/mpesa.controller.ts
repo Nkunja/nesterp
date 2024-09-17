@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable prettier/prettier */
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { MpesaService } from './mpesa.service';
 import { MpesaPaymentDto } from './dto/mpesa-payment.dto';
 
@@ -27,4 +27,10 @@ export class MpesaController {
     }
     return phoneNumber; 
   }
+
+  @Get('payment/:transactionId')
+  async getPaymentStatus(@Param('transactionId') transactionId: string): Promise<any> {
+      return this.mpesaService.checkPaymentStatus(transactionId);
+  }
+
 }
