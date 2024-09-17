@@ -131,7 +131,7 @@ export class MpesaService {
             'Content-Type': 'application/json',
         };
 
-        const response = await firstValueFrom(this.httpService.get(url, { headers }));
+        const response = await firstValueFrom(this.httpService.get(url, { headers, timeout: 10000 }));
 
         this.logger.log(`Payment status response: ${JSON.stringify(response.data)}`);
 
