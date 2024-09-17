@@ -30,15 +30,6 @@ export class CompanyService {
       },
     });
 
-    // Initiate payment
-    // const paymentResponse = await this.mpesaService.initiatePayment({
-    //   phoneNumber: registerCompanyDto.phoneNumber,
-    //   amount: registerCompanyDto.amount,
-    //   accountReference: registerCompanyDto.name,
-    //   transactionDesc: 'Company Registration Payment',
-    //   companyId: company.id,
-    //   transactionId: transactionId
-    // });
     const transactionId = await this.mpesaService.initiatePayment({
       phoneNumber: registerCompanyDto.phoneNumber,
       amount: registerCompanyDto.amount,
@@ -56,31 +47,48 @@ export class CompanyService {
 
     // Check payment status
     const paymentStatus = await this.checkPaymentStatus(transactionId);
-  
-
-    // Update subscription status based on payment status
-    if (paymentStatus === 'SUCCESS') {
-      const subscriptionEnd = new Date();
-      subscriptionEnd.setFullYear(subscriptionEnd.getFullYear() + 1);
-
-      await this.prisma.company.update({
-        where: { id: company.id },
-        data: {
-          subscriptionStatus: 'active', // Set status to active
-          subscriptionEnd, // Set subscription end date
-        },
-      });
+    
+    // Update company status based on payment status
+    if (paymentStatus === 'success') {
+      await this.updateCompanyStatus(company.id, 'active');
     } else {
-      await this.prisma.company.update({
-        where: { id: company.id },
-        data: {
-          subscriptionStatus: 'pending', // Ensure status is pending
-        },
-      });
+      await this.updateCompanyStatus(company.id, 'failed');
     }
 
-    return { message: 'Company registered successfully, awaiting payment confirmation.', company };
+    return { company, paymentStatus };
   }
+
+
+  private async updateCompanyStatus(companyId: number, status: 'active' | 'failed') {
+    await this.prisma.company.update({
+      where: { id: companyId },
+      data: { subscriptionStatus: status },
+    });
+  }
+
+  //   // Update subscription status based on payment status
+  //   if (paymentStatus === 'SUCCESS') {
+  //     const subscriptionEnd = new Date();
+  //     subscriptionEnd.setFullYear(subscriptionEnd.getFullYear() + 1);
+
+  //     await this.prisma.company.update({
+  //       where: { id: company.id },
+  //       data: {
+  //         subscriptionStatus: 'active', // Set status to active
+  //         subscriptionEnd, // Set subscription end date
+  //       },
+  //     });
+  //   } else {
+  //     await this.prisma.company.update({
+  //       where: { id: company.id },
+  //       data: {
+  //         subscriptionStatus: 'pending', // Ensure status is pending
+  //       },
+  //     });
+  //   }
+
+  //   return { message: 'Company registered successfully, awaiting payment confirmation.', company };
+  // }
 
   private delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -158,17 +166,24 @@ export class CompanyService {
       });
     }
 }
+  // async checkSubscriptionStatus(companyId: number): Promise<boolean> {
+  //   const company = await this.prisma.company.findUnique({
+  //     where: { id: companyId },
+  //     select: { subscriptionEnd: true },
+  //   });
+
+  //   if (!company || !company.subscriptionEnd) {
+  //     return false; // No subscription found
+  //   }
+
+  //   return new Date() < company.subscriptionEnd; // Check if current date is before subscription end date
+  // }
+
   async checkSubscriptionStatus(companyId: number): Promise<boolean> {
     const company = await this.prisma.company.findUnique({
-      where: { id: companyId },
-      select: { subscriptionEnd: true },
+      where: { id: companyId }
     });
-
-    if (!company || !company.subscriptionEnd) {
-      return false; // No subscription found
-    }
-
-    return new Date() < company.subscriptionEnd; // Check if current date is before subscription end date
+    return company?.subscriptionStatus === 'active';
   }
 
   async login(companyId: number): Promise<LoginResponse> {

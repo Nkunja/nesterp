@@ -1,10 +1,12 @@
 /* eslint-disable prettier/prettier */
+import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
   
   const config = new DocumentBuilder()
     .setTitle('Employee Management API')
@@ -18,3 +20,4 @@ async function bootstrap() {
   await app.listen(3006);
 }
 bootstrap();
+
