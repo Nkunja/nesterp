@@ -31,21 +31,32 @@ export class CompanyService {
     });
 
     // Initiate payment
-    const paymentResponse = await this.mpesaService.initiatePayment({
+    // const paymentResponse = await this.mpesaService.initiatePayment({
+    //   phoneNumber: registerCompanyDto.phoneNumber,
+    //   amount: registerCompanyDto.amount,
+    //   accountReference: registerCompanyDto.name,
+    //   transactionDesc: 'Company Registration Payment',
+    //   companyId: company.id,
+    //   transactionId: transactionId
+    // });
+    const transactionId = await this.mpesaService.initiatePayment({
       phoneNumber: registerCompanyDto.phoneNumber,
       amount: registerCompanyDto.amount,
       accountReference: registerCompanyDto.name,
       transactionDesc: 'Company Registration Payment',
+      companyId: company.id, // Add the companyId here
     });
 
+
     // Create transaction record
-    await this.createTransaction(company.id, registerCompanyDto.amount);
+    await this.createTransaction(company.id, registerCompanyDto.amount, transactionId);
 
     // Wait for 45 seconds before checking payment status
     await this.delay(45000);
 
     // Check payment status
-    const paymentStatus = await this.checkPaymentStatus(paymentResponse.transactionId);
+    const paymentStatus = await this.checkPaymentStatus(transactionId);
+  
 
     // Update subscription status based on payment status
     if (paymentStatus === 'SUCCESS') {
@@ -94,12 +105,13 @@ export class CompanyService {
     });
   }
 
-  async createTransaction(companyId: number, amount: number): Promise<void> {
+  async createTransaction(companyId: number, amount: number, transactionId: string): Promise<void> {
     // Create a transaction record
     await this.prisma.transaction.create({
       data: {
         companyId,
         amount,
+        transactionId
       },
     });
 

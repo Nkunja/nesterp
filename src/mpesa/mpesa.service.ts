@@ -3,18 +3,29 @@ import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { MpesaAuthService } from './mpesa-auth.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class MpesaService {
-  constructor(private httpService: HttpService, private mpesaAuthService: MpesaAuthService) {}
+  constructor(
+    private httpService: HttpService, 
+    private mpesaAuthService: MpesaAuthService,
+    private prisma: PrismaService
+  ) {}
 
-  async initiatePayment(data: any): Promise<any> {
+
+  async initiatePayment(data: {
+    amount: number;
+    phoneNumber: string;
+    accountReference?: string;
+    transactionDesc?: string;
+    companyId: number;
+  }): Promise<string> {
     const url = process.env.MPESA_PAYMENT_URL;
-    const token = await this.mpesaAuthService.getAccessToken(); // Get the access token
-
+    const token = await this.mpesaAuthService.getAccessToken();
 
     const shortcode = process.env.BUSINESS_SHORTCODE;
-    const passkey = process.env.MPESA_PASSKEY; 
+    const passkey = process.env.MPESA_PASSKEY;
     const timestamp = this.getTimestamp();
     const password = this.generatePassword(shortcode, passkey, timestamp);
 
@@ -39,13 +50,70 @@ export class MpesaService {
 
     try {
       const response = await firstValueFrom(this.httpService.post(url, paymentRequest, { headers }));
-      return response.data;
+      
+      // Extract the transactionId from the response
+      // Adjust the field name based on the actual M-Pesa API response
+      const transactionId = response.data.CheckoutRequestID;
+
+      if (!transactionId) {
+        throw new Error('Transaction ID not found in M-Pesa response');
+      }
+
+      // Save the transaction to the database
+      await this.prisma.transaction.create({
+        data: {
+          companyId: data.companyId,
+          amount: data.amount,
+          transactionId: transactionId,
+        },
+      });
+
+      return transactionId;
     } catch (error) {
       const axiosError = error as any;
       console.error('Error initiating payment:', axiosError.response?.data || axiosError.message);
       throw error; // Rethrow or handle the error as needed
     }
   }
+
+  // async initiatePayment(data: any): Promise<any> {
+  //   const url = process.env.MPESA_PAYMENT_URL;
+  //   const token = await this.mpesaAuthService.getAccessToken(); // Get the access token
+
+
+  //   const shortcode = process.env.BUSINESS_SHORTCODE;
+  //   const passkey = process.env.MPESA_PASSKEY; 
+  //   const timestamp = this.getTimestamp();
+  //   const password = this.generatePassword(shortcode, passkey, timestamp);
+
+  //   const headers = {
+  //     Authorization: `Bearer ${token}`,
+  //     'Content-Type': 'application/json',
+  //   };
+
+  //   const paymentRequest = {
+  //     BusinessShortCode: shortcode,
+  //     Password: password,
+  //     Timestamp: timestamp,
+  //     TransactionType: 'CustomerPayBillOnline',
+  //     Amount: data.amount,
+  //     PartyA: data.phoneNumber,
+  //     PartyB: shortcode,
+  //     PhoneNumber: data.phoneNumber,
+  //     CallBackURL: process.env.MPESA_CALLBACK_URL,
+  //     AccountReference: data.accountReference || 'Sir Nkunja',
+  //     TransactionDesc: data.transactionDesc || 'Payment',
+  //   };
+
+  //   try {
+  //     const response = await firstValueFrom(this.httpService.post(url, paymentRequest, { headers }));
+  //     return response.data;
+  //   } catch (error) {
+  //     const axiosError = error as any;
+  //     console.error('Error initiating payment:', axiosError.response?.data || axiosError.message);
+  //     throw error; // Rethrow or handle the error as needed
+  //   }
+  // }
 
   private getTimestamp(): string {
     const date = new Date();

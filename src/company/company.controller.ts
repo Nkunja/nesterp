@@ -12,14 +12,24 @@ export class CompanyController {
     return this.companyService.registerCompany(registerCompanyDto);
   }
 
+
   @Post('login')
   async login(@Body('companyId') companyId: number) {
     return this.companyService.login(companyId);
   }
 
+  // @Post('transaction')
+  // async createTransaction(@Body('companyId') companyId: number, @Body('amount') amount: number) {
+  //   await this.companyService.createTransaction(companyId, amount);
+  //   return { message: 'Transaction created and subscription updated successfully' };
+  // }
   @Post('transaction')
-  async createTransaction(@Body('companyId') companyId: number, @Body('amount') amount: number) {
-    await this.companyService.createTransaction(companyId, amount);
+  async createTransaction(
+    @Body('companyId') companyId: number,
+    @Body('amount') amount: number,
+    @Body('transactionId') transactionId: string
+  ) {
+    await this.companyService.createTransaction(companyId, amount, transactionId);
     return { message: 'Transaction created and subscription updated successfully' };
   }
 

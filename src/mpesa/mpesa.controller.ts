@@ -15,6 +15,7 @@ export class MpesaController {
     const paymentRequest = {
       phoneNumber: formattedPhoneNumber,
       amount: paymentData.amount, 
+      companyId: paymentData.companyId,
     };
 
     return this.mpesaService.initiatePayment(paymentRequest);

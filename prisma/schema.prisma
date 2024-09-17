@@ -34,6 +34,7 @@ model Transaction {
   amount      Float
   createdAt   DateTime @default(now())
   company     Company  @relation(fields: [companyId], references: [id])
+  transactionId String?
 }
 
 model Employee {
