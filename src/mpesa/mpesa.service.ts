@@ -144,23 +144,16 @@ export class MpesaService {
             return 'fail';
         }
 
-        // Assuming the response contains a 'status' field
-        // const status =  response.data.status || 'unknown';
-
-        // if (status === 'Completed' || status === 'Success') {
-        //   return 'success';
-        // } else {
-        //     return 'fail';
-        // }
-    } catch (error) {
-        // Check if error is an instance of Error
-        if (error instanceof Error) {
-            this.logger.error(`Error checking payment status: ${error.message}`, error.stack);
-        } else {
-            this.logger.error('An unknown error occurred while checking payment status.');
-        }
-        return 'failed';
-    }
+      
+      } catch (error) {
+          // Check if error is an instance of Error
+          if (error instanceof Error) {
+              this.logger.error(`Error checking payment status: ${error.message}`, error.stack);
+          } else {
+              this.logger.error('An unknown error occurred while checking payment status.');
+          }
+          return 'failed';
+      }
 }
 
 
