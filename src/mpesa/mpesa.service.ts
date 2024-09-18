@@ -156,7 +156,7 @@ export class MpesaService {
       const payload = {
         BusinessShortCode: process.env.BUSINESS_SHORTCODE,
         Password: this.generatePassword,
-        Timestamp: new Date().toISOString().replace(/[^0-9]/g, "").slice(0, -3),
+        Timestamp: this.getTimestamp,
         CheckoutRequestID: transactionId
       };
 

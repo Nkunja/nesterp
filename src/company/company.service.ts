@@ -47,26 +47,14 @@ export class CompanyService {
 
     // Check payment status
     const paymentStatus = await this.checkPaymentStatus(transactionId);
-    
-    // // Update company status based on payment status
-    // if (paymentStatus === 'success') {
-    //   await this.updateCompanyStatus(company.id, 'active');
-    // } else {
-    //   await this.updateCompanyStatus(company.id, 'failed');
-    // }
-
-    // return { company, paymentStatus };
 
     // Update company subscription status based on payment status
     if (paymentStatus === 'success') {
       // Payment was successful, activate the company
       await this.updateCompanyStatus(company.id, 'active');
-    } else if (paymentStatus === 'pending') {
-      // Payment was cancelled by the user
-      await this.updateCompanyStatus(company.id, 'pending');
     } else {
       // Payment failed for some other reason
-      await this.updateCompanyStatus(company.id, 'failed');
+      await this.updateCompanyStatus(company.id, 'pending');
     }
 
     // Return the company details and payment status
@@ -74,7 +62,7 @@ export class CompanyService {
   }
 
 
-  private async updateCompanyStatus(companyId: number, status: 'active' | 'failed' | 'pending') {
+  private async updateCompanyStatus(companyId: number, status: 'active' | 'pending') {
     await this.prisma.company.update({
       where: { id: companyId },
       data: { subscriptionStatus: status },
