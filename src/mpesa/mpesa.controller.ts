@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable prettier/prettier */
 import { Controller, Post, Body, Get, Param, HttpException, HttpStatus } from '@nestjs/common';
 import { MpesaService } from './mpesa.service';
 import { MpesaPaymentDto } from './dto/mpesa-payment.dto';

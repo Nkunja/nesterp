@@ -99,95 +99,95 @@ export class MpesaService {
   }
 
 
-  // async checkPaymentStatus(transactionId: string): Promise<string> {
-  //   // Ensure the MPESA_CALLBACK_URL doesn't end with a slash
-  //   const baseUrl = process.env.MPESA_CALLBACK_URL?.replace(/\/$/, '');
-  //   const url = `${baseUrl}/mpesa/payment/${transactionId}`;
+  async checkPaymentStatus(transactionId: string): Promise<string> {
+    // Ensure the MPESA_CALLBACK_URL doesn't end with a slash
+    const baseUrl = process.env.MPESA_CALLBACK_URL?.replace(/\/$/, '');
+    const url = `${baseUrl}/mpesa/payment/${transactionId}`;
 
-  //   this.logger.log(`Checking payment status for transaction: ${transactionId}`);
-  //   this.logger.log(`URL: ${url}`);
+    this.logger.log(`Checking payment status for transaction: ${transactionId}`);
+    this.logger.log(`URL: ${url}`);
 
-  //   try {
-  //       const token = await this.mpesaAuthService.getAccessToken();
+    try {
+        const token = await this.mpesaAuthService.getAccessToken();
 
-  //       const headers = {
-  //           Authorization: `Bearer ${token}`,
-  //           'Content-Type': 'application/json',
-  //       };
+        const headers = {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        };
 
-  //       const response = await firstValueFrom(this.httpService.get(url, { headers, timeout: 20000 }));
+        const response = await firstValueFrom(this.httpService.get(url, { headers, timeout: 20000 }));
 
-  //       this.logger.log(`Payment status response: ${JSON.stringify(response.data)}`);
+        this.logger.log(`Payment status response: ${JSON.stringify(response.data)}`);
 
-  //       const resultCode = response.data?.Body?.stkCallback?.ResultCode;
+        const resultCode = response.data?.Body?.stkCallback?.ResultCode;
 
-  //       // Check ResultCode: 0 indicates success, otherwise it's a failure
-  //       if (resultCode === 0) {
-  //           return 'success';
-  //       } else {
-  //           return 'fail';
-  //       }
+        // Check ResultCode: 0 indicates success, otherwise it's a failure
+        if (resultCode === 0) {
+            return 'success';
+        } else {
+            return 'fail';
+        }
 
       
-  //     } catch (error) {
-  //         // Check if error is an instance of Error
-  //         if (error instanceof Error) {
-  //             this.logger.error(`Error checking payment status: ${error.message}`, error.stack);
-  //         } else {
-  //             this.logger.error('An unknown error occurred while checking payment status.');
-  //         }
-  //         return 'failed';
-  //     }
-  // }
+      } catch (error) {
+          // Check if error is an instance of Error
+          if (error instanceof Error) {
+              this.logger.error(`Error checking payment status: ${error.message}`, error.stack);
+          } else {
+              this.logger.error('An unknown error occurred while checking payment status.');
+          }
+          return 'failed';
+      }
+  }
 
-  async checkPaymentStatus(transactionId: string): Promise<string> {
-    try {
-      const token = await this.mpesaAuthService.getAccessToken();
+  // async checkPaymentStatus(transactionId: string): Promise<string> {
+  //   try {
+  //     const token = await this.mpesaAuthService.getAccessToken();
 
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      };
+  //     const headers = {
+  //       Authorization: `Bearer ${token}`,
+  //       'Content-Type': 'application/json',
+  //     };
 
-      // Use the actual M-Pesa API endpoint here
-      const mpesaApiUrl = `https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query`;
+  //     // Use the actual M-Pesa API endpoint here
+  //     const mpesaApiUrl = `https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query`;
   
 
-      const payload = {
-        BusinessShortCode: process.env.BUSINESS_SHORTCODE,
-        Password: this.generatePassword,
-        Timestamp: this.getTimestamp,
-        CheckoutRequestID: transactionId
-      };
+  //     const payload = {
+  //       BusinessShortCode: process.env.BUSINESS_SHORTCODE,
+  //       Password: this.generatePassword,
+  //       Timestamp: this.getTimestamp,
+  //       CheckoutRequestID: transactionId
+  //     };
 
-      const response = await firstValueFrom(
-        this.httpService.post(mpesaApiUrl, payload, { headers, timeout: 20000 })
-      );
+  //     const response = await firstValueFrom(
+  //       this.httpService.post(mpesaApiUrl, payload, { headers, timeout: 20000 })
+  //     );
 
-      this.logger.log(`Payment status response: ${JSON.stringify(response.data)}`);
+  //     this.logger.log(`Payment status response: ${JSON.stringify(response.data)}`);
 
-      const resultCode = response.data?.ResultCode;
+  //     const resultCode = response.data?.ResultCode;
 
-      return resultCode === 0 ? 'success' : 'fail';
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        this.logger.error(`Error checking payment status: ${error.message}`, error.stack);
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          this.logger.error(`Response data: ${JSON.stringify(error.response.data)}`);
-          this.logger.error(`Response status: ${error.response.status}`);
-        } else if (error.request) {
-          // The request was made but no response was received
-          this.logger.error('No response received', error.request);
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          this.logger.error('Error setting up request', error.message);
-        }
-      } else {
-        this.logger.error('An unknown error occurred while checking payment status.', error);
-      }
-      return 'failed';
-    }
-  }
+  //     return resultCode === 0 ? 'success' : 'fail';
+  //   } catch (error) {
+  //     if (error instanceof AxiosError) {
+  //       this.logger.error(`Error checking payment status: ${error.message}`, error.stack);
+  //       if (error.response) {
+  //         // The request was made and the server responded with a status code
+  //         // that falls out of the range of 2xx
+  //         this.logger.error(`Response data: ${JSON.stringify(error.response.data)}`);
+  //         this.logger.error(`Response status: ${error.response.status}`);
+  //       } else if (error.request) {
+  //         // The request was made but no response was received
+  //         this.logger.error('No response received', error.request);
+  //       } else {
+  //         // Something happened in setting up the request that triggered an Error
+  //         this.logger.error('Error setting up request', error.message);
+  //       }
+  //     } else {
+  //       this.logger.error('An unknown error occurred while checking payment status.', error);
+  //     }
+  //     return 'failed';
+  //   }
+  // }
 }
